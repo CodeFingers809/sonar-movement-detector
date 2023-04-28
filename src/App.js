@@ -12,6 +12,7 @@ function App() {
   const [numBalls, setNumBalls] = useState(20);
   const [numObj, setNumObj] = useState(5);
   const [lineDisplay, setLineDisplay] = useState(false);
+  const [XDisplay, setXDisplay] = useState(false);
 
   useEffect(() => {
     //canvas
@@ -82,19 +83,22 @@ function App() {
           ctx.fillStyle = "blue";
           ctx.fill();
           ctx.closePath();
-          //draw text
-          let theta = Math.atan(
-            Math.abs((balls[i].y - 50) / (balls[i].x - 50))
-          );
-          let phi = Math.atan(
-            Math.abs((balls[i].y - 50) / (balls[i].x - (canvas.width - 50))) //absolute important
-          );
-          let calcX = Math.abs(
-            (Math.tan(phi) / (Math.tan(theta) + Math.tan(phi))) *
-              (canvas.width - 100)
-          );
-          ctx.font = "20px Arial";
-          ctx.fillText(`${calcX}`, balls[i].x + 10, balls[i].y - 10);
+          if (XDisplay) {
+            //draw text
+            let theta = Math.atan(
+              Math.abs((balls[i].y - 50) / (balls[i].x - 50))
+            );
+            let phi = Math.atan(
+              Math.abs((balls[i].y - 50) / (balls[i].x - (canvas.width - 50))) //modulus important
+            );
+            let calcX = Math.abs(
+              (Math.tan(phi) / (Math.tan(theta) + Math.tan(phi))) *
+                (canvas.width - 100)
+            );
+            ctx.font = "20px monospace";
+            ctx.textAlign="left"
+            ctx.fillText(`${calcX}`, balls[i].x + 10, balls[i].y - 10);
+          }
         }
         if (lineDisplay) {
           // draw lines sensor1
@@ -113,7 +117,7 @@ function App() {
             ctx.beginPath();
             ctx.moveTo(balls[i].x, canvas.height - 50);
             ctx.lineTo(balls[i].x, balls[i].y);
-            ctx.strokeStyle = "brown";
+            ctx.strokeStyle = "red";
             ctx.stroke();
           }
         }
@@ -125,6 +129,13 @@ function App() {
         ctx.moveTo(50, canvas.height - 50);
         ctx.lineTo(canvas.width - 50, canvas.height - 50);
         ctx.stroke();
+        ctx.font = "20px monospace";
+        ctx.textAlign = "center";
+        ctx.fillText(
+          `L=${canvas.width - 100}`,
+          canvas.width / 2,
+          canvas.height - 20
+        );
       }
       // Draw circle in bottom left corner
       ctx.beginPath();
@@ -143,12 +154,13 @@ function App() {
     }
     // Start the animation
     animate();
-  }, [lineDisplay, numBalls, numObj]);
+  }, [lineDisplay, numBalls, numObj, XDisplay]);
   return (
     <div className="App flex justify-center items-center flex-col h-screen w-screen p-4">
       <div className="controlBox mb-4 flex flex-row items-center justify-center space-x-4">
         <p className="text-xl">
-          Density:&nbsp;
+          {/* moving balls */}
+          Moving Density:&nbsp;
           <button
             className="p-4 bg-blue-600 rounded-xl text-white hover:bg-blue-800"
             onClick={() => setNumBalls((c) => (c > 0 ? --c : c))}
@@ -163,12 +175,36 @@ function App() {
             +
           </button>
         </p>
+        <p className="text-xl">
+          {/* Stationery balls */}
+          Stopped Density:&nbsp;
+          <button
+            className="p-4 bg-blue-600 rounded-xl text-white hover:bg-blue-800"
+            onClick={() => setNumObj((c) => (c > 0 ? --c : c))}
+          >
+            -
+          </button>
+          {numObj}
+          <button
+            className="p-4 bg-blue-600 rounded-xl text-white hover:bg-blue-800"
+            onClick={() => setNumObj(numObj + 1)}
+          >
+            +
+          </button>
+        </p>
         {/* display lines */}
         <button
           className="p-4 bg-blue-600 rounded-xl text-white hover:bg-blue-800"
           onClick={() => setLineDisplay(!lineDisplay)}
         >
           Show Lines
+        </button>
+        {/* display numbers */}
+        <button
+          className="p-4 bg-blue-600 rounded-xl text-white hover:bg-blue-800"
+          onClick={() => setXDisplay(!XDisplay)}
+        >
+          Show CalcX
         </button>
       </div>
 
@@ -178,10 +214,6 @@ function App() {
           ref={canvasRef}
         ></canvas>
       </div>
-      {/* <div className="sensorBox w-full flex justify-between">
-        <div className="h-14 w-14 bg-red-600 rounded-full" id="sensor1"></div>
-        <div className="h-14 w-14 bg-red-600 rounded-full" id="sensor2"></div>
-      </div> */}
     </div>
   );
 }
