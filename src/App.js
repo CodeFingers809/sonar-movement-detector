@@ -82,6 +82,19 @@ function App() {
           ctx.fillStyle = "blue";
           ctx.fill();
           ctx.closePath();
+          //draw text
+          let theta = Math.atan(
+            Math.abs((balls[i].y - 50) / (balls[i].x - 50))
+          );
+          let phi = Math.atan(
+            Math.abs((balls[i].y - 50) / (balls[i].x - (canvas.width - 50))) //absolute important
+          );
+          let calcX = Math.abs(
+            (Math.tan(phi) / (Math.tan(theta) + Math.tan(phi))) *
+              (canvas.width - 100)
+          );
+          ctx.font = "20px Arial";
+          ctx.fillText(`${calcX}`, balls[i].x + 10, balls[i].y - 10);
         }
         if (lineDisplay) {
           // draw lines sensor1
